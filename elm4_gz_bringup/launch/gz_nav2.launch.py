@@ -33,7 +33,7 @@ ARGUMENTS = [
                           description='GZ World'),
     DeclareLaunchArgument('model', default_value='lidar',
                           choices=['base', 'lidar'],
-                          description='MR Buggy3 Model'),
+                          description='El Mandadero Model'),
     DeclareLaunchArgument('robot_name', default_value='elm4',
                           description='Robot name')
 ]
@@ -78,7 +78,7 @@ def generate_launch_description():
         'param_file',
         default_value=PathJoinSubstitution(
             [pkg_elm4_gz_bringup, 'config', 'elm4_node.yaml']),
-        description='MR Buggy3 param file')
+        description='El Mandadero param file')
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map',
@@ -137,7 +137,7 @@ def generate_launch_description():
                           ('use_sim_time', LaunchConfiguration('use_sim_time'))]
     )
 
-    # Spawn MR Buggy3
+    # Spawn El Mandadero
     spawn_robot = Node(
         package='ros_gz_sim',
         executable='create',

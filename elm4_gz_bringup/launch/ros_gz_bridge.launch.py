@@ -19,7 +19,7 @@ ARGUMENTS = [
                           description='World name'),
     DeclareLaunchArgument('model', default_value='lidar',
                           choices=['base', 'lidar'],
-                          description='MR Buggy3 Model'),
+                          description='El Mandadero Model'),
 ]
 
 
