@@ -716,25 +716,33 @@
         filename="gz-sim-joint-controller-system"
         name="gz::sim::systems::JointController">
       <joint_name>BackRightHubMotorWheelJoint</joint_name>
-      <sub_topic>rear_right</sub_topic>
+      <!-- <sub_topic>rear_right</sub_topic> -->
+      <use_actuator_msg>true</use_actuator_msg>
+      <actuator_number>0</actuator_number>
     </plugin>
     <plugin
         filename="gz-sim-joint-controller-system"
         name="gz::sim::systems::JointController">
       <joint_name>BackLeftHubMotorWheelJoint</joint_name>
-      <sub_topic>rear_left</sub_topic>
+      <!-- <sub_topic>rear_left</sub_topic> -->
+      <use_actuator_msg>true</use_actuator_msg>
+      <actuator_number>1</actuator_number>
     </plugin>
     <plugin
         filename="gz-sim-joint-controller-system"
         name="gz::sim::systems::JointController">
       <joint_name>FrontLeftHubMotorWheelJoint</joint_name>
-      <sub_topic>front_left</sub_topic>
+      <!-- <sub_topic>front_left</sub_topic> -->
+      <use_actuator_msg>true</use_actuator_msg>
+      <actuator_number>2</actuator_number>
     </plugin>
     <plugin
         filename="gz-sim-joint-controller-system"
         name="gz::sim::systems::JointController">
       <joint_name>FrontRightHubMotorWheelJoint</joint_name>
-      <sub_topic>front_right</sub_topic>
+      <!-- <sub_topic>front_right</sub_topic> -->
+      <use_actuator_msg>true</use_actuator_msg>
+      <actuator_number>3</actuator_number>
     </plugin>
     <plugin
       filename="gz-sim-odometry-publisher-system"
