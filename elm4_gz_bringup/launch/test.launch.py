@@ -1,11 +1,16 @@
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 
 from launch_ros.actions import Node
+
+ARGUMENTS = [
+    DeclareLaunchArgument('world', default_value='elm4map',
+                          description='GZ World'),
+]
 
 
 def generate_launch_description():
@@ -24,7 +29,19 @@ def generate_launch_description():
                           ('port', '4242')]
     )
 
-    return LaunchDescription([
+    gz_sim = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([PathJoinSubstitution(
+            [get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])]),
+        launch_arguments=[
+            ('gz_args', [
+                LaunchConfiguration('world'), '.sdf',
+                ' -v 1',
+                ' -r '])
+        ]
+    )
+
+    return LaunchDescription(ARGUMENTS + [
         synapse_ros,
-        synapse_gz
+        synapse_gz,
+        gz_sim
     ])
