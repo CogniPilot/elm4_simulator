@@ -71,13 +71,13 @@ def generate_launch_description():
         arguments=[
             ['/world/', LaunchConfiguration('world'),
              '/model/', LaunchConfiguration('robot_name'),
-             '/link/rplidar_link/sensor/rplidar/scan' +
+             '/link/lidar_link/sensor/lidar/scan' +
              '@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan']
         ],
         remappings=[
             (['/world/', LaunchConfiguration('world'),
               '/model/', LaunchConfiguration('robot_name'),
-              '/link/rplidar_link/sensor/rplidar/scan'],
+              '/link/lidar_link/sensor/lidar/scan'],
              '/scan')
         ],
         condition=LaunchConfigurationEquals('model', 'lidar'))

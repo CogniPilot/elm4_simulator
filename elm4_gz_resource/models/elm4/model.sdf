@@ -78,7 +78,7 @@
       </visual>
     </link>
     <link name="base_footprint"/>
-    <link name="rplidar_link">
+    <link name="lidar_link">
       <pose relative_to="base_link">0 0 0.22 0 0 0</pose>
       <inertial>
         <mass>0.17</mass>
@@ -98,7 +98,7 @@
           </mesh>
         </geometry>
       </visual>
-      <sensor name="rplidar" type="gpu_lidar">
+      <sensor name="lidar" type="gpu_lidar">
         <lidar>
           <scan>
             <horizontal>
@@ -114,15 +114,15 @@
             <resolution>0.01</resolution>
           </range>
         </lidar>
-        <gz_frame_id>rplidar_link</gz_frame_id>
+        <gz_frame_id>lidar_link</gz_frame_id>
         <alwaysOn>1</alwaysOn>
         <visualize>true</visualize>
         <update_rate>10</update_rate>
       </sensor>
     </link>
-    <joint name="rplidar_joint" type="fixed">
+    <joint name="lidar_joint" type="fixed">
       <parent>base_link</parent>
-      <child>rplidar_link</child>
+      <child>lidar_link</child>
     </joint>
     <link name="sensors">
       <pose relative_to="base_link">0 0 0.22 0 0 0</pose>
