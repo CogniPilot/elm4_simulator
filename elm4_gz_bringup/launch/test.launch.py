@@ -34,18 +34,22 @@ def generate_launch_description():
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])]),
-        launch_arguments=[('gz_args', [LaunchConfiguration('world'), '.sdf', ' -v 1'])
+        launch_arguments=[('gz_args', [LaunchConfiguration('world'), '.sdf', ' -v 1', ' -r'])
         ]
     )
 
-    cerebri = ExecuteProcess(
-            cmd=['terminator', '-e', environ.get('CEREBRI_BINARY')],
-            output='screen',
-            shell=True)
+    cerebri_bin = environ.get('CEREBRI_BINARY')
+    cerebri_cmd = f"{cerebri_bin} -attach_uart_cmd='xterm -fg white -bg black -e screen %s &'"
+    cerebri = LaunchDescription([
+        ExecuteProcess(
+            cmd=cerebri_cmd.split(),
+            output="log",
+            shell=True),
+    ])
 
     return LaunchDescription(ARGUMENTS + [
         synapse_ros,
         synapse_gz,
         gz_sim,
-        cerebri
+        cerebri,
     ])
