@@ -12,6 +12,12 @@ from launch_ros.actions import Node
 ARGUMENTS = [
     DeclareLaunchArgument('world', default_value='elm4map',
                           description='GZ World'),
+    DeclareLaunchArgument('debugger', default_value='false',
+                          choices=['true', 'false'],
+                          description='Run cerebri with gdb debugger.')
+    DeclareLaunchArgument('uart_shell', default_value='false',
+                          choices=['true', 'false'],
+                          description='Run cerebri with UART shell.')
 ]
 
 
@@ -34,13 +40,14 @@ def generate_launch_description():
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])]),
-        launch_arguments=[('gz_args', [LaunchConfiguration('world'), '.sdf', ' -v 1', ' -r'])
-        ]
+        launch_arguments=[('gz_args', [LaunchConfiguration('world'), '.sdf', ' -v 1', ' -r'])]
     )
 
     cerebri = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
-            [get_package_share_directory('cerebri_bringup'), 'launch', 'cerebri.launch.py'])])
+            [get_package_share_directory('cerebri_bringup'), 'launch', 'cerebri.launch.py'])]),
+        launch_arguments=[('debugger', LaunchConfiguration('debugger')),
+                          ('uart_shell', LaunchConfiguration('uart_shell'))],
     )
 
     joy = Node(
