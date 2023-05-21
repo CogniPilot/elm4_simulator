@@ -5,8 +5,8 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
+from launch_ros.actions import Node
 
 
 ARGUMENTS = [
@@ -43,9 +43,15 @@ def generate_launch_description():
             [get_package_share_directory('cerebri_bringup'), 'launch', 'cerebri.launch.py'])])
     )
 
+    joy = Node(
+        package='joy',
+        executable='joy_node',
+        output='screen')
+
     return LaunchDescription(ARGUMENTS + [
         synapse_ros,
         synapse_gz,
         gz_sim,
         cerebri,
+        joy,
     ])
