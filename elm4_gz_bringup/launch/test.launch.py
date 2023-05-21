@@ -20,7 +20,7 @@ def generate_launch_description():
     synapse_ros = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('synapse_ros'), 'launch', 'synapse_ros.launch.py'])]),
-        launch_arguments=[('host', ['192.0.2.1']),
+        launch_arguments=[('host', ['192.0.2.2']),
                           ('port', '4242')]
     )
 
@@ -38,14 +38,10 @@ def generate_launch_description():
         ]
     )
 
-    cerebri_bin = environ.get('CEREBRI_BINARY')
-    cerebri_cmd = f"{cerebri_bin} -attach_uart_cmd='xterm -fg white -bg black -e screen %s &'"
-    cerebri = LaunchDescription([
-        ExecuteProcess(
-            cmd=cerebri_cmd.split(),
-            output="log",
-            shell=True),
-    ])
+    cerebri = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([PathJoinSubstitution(
+            [get_package_share_directory('cerebri_bringup'), 'launch', 'cerebri.launch.py'])])
+    )
 
     return LaunchDescription(ARGUMENTS + [
         synapse_ros,
