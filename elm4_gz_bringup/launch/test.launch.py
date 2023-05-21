@@ -20,7 +20,7 @@ def generate_launch_description():
     synapse_ros = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('synapse_ros'), 'launch', 'synapse_ros.launch.py'])]),
-        launch_arguments=[('host', ['192.0.2.2']),
+        launch_arguments=[('host', ['192.0.2.1']),
                           ('port', '4242')]
     )
 
@@ -44,9 +44,11 @@ def generate_launch_description():
     )
 
     joy = Node(
+        namespace='cerebri/in',
         package='joy',
         executable='joy_node',
-        output='screen')
+        output='screen'
+    )
 
     return LaunchDescription(ARGUMENTS + [
         synapse_ros,
