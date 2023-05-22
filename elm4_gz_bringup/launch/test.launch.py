@@ -57,10 +57,27 @@ def generate_launch_description():
         output='screen'
     )
 
+    odom_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        #namespace='cerebri',
+        name='odom_bridge',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True
+            }],
+        arguments=[
+            '/model/elm4/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry'
+            ],
+        remappings=[
+            ('/model/elm4/odometry', '/cerebri/in/odometry')
+            ])
+
     return LaunchDescription(ARGUMENTS + [
         synapse_ros,
         synapse_gz,
         gz_sim,
         cerebri,
         joy,
+        odom_bridge
     ])
