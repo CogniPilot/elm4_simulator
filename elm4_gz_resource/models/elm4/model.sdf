@@ -79,7 +79,7 @@
     </link>
     <link name="base_footprint"/>
     <link name="lidar_link">
-      <pose relative_to="base_link">0 0 0.22 0 0 0</pose>
+      <pose relative_to="base_link">0 0 0.2 0 0 0</pose>
       <inertial>
         <mass>0.17</mass>
         <inertia>
@@ -92,9 +92,10 @@
         </inertia>
       </inertial>
       <visual name="visual">
+        <pose>0 0 -.028 0 0 0</pose>
         <geometry>
           <mesh>
-            <uri>model://elm4/meshes/rplidar.dae</uri>
+            <uri>model://elm4/meshes/STL27L.dae</uri>
           </mesh>
         </geometry>
       </visual>
@@ -110,7 +111,7 @@
           </scan>
           <range>
             <min>0.15</min>
-            <max>12</max>
+            <max>25</max>
             <resolution>0.01</resolution>
           </range>
         </lidar>
