@@ -107,6 +107,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('cerebri_bringup'), 'launch', 'cerebri.launch.py'])]),
         launch_arguments=[('debugger', LaunchConfiguration('debugger')),
+                          ('vehicle', 'elm4'),
                           ('uart_shell', LaunchConfiguration('uart_shell'))],
     )
 
