@@ -11,6 +11,14 @@ from launch_ros.actions import Node
 
 
 ARGUMENTS = [
+    DeclareLaunchArgument('x', default_value=['0'],
+        description='x position'),
+    DeclareLaunchArgument('y', default_value=['0'],
+        description='y position'),
+    DeclareLaunchArgument('z', default_value=['0'],
+        description='z position'),
+    DeclareLaunchArgument('yaw', default_value=['0'],
+        description='yaw position'),
     DeclareLaunchArgument('rviz', default_value='true',
                           choices=['true', 'false'],
                           description='Start rviz.'),
@@ -29,9 +37,28 @@ ARGUMENTS = [
     DeclareLaunchArgument('cerebri', default_value='true',
                           choices=['true', 'false'],
                           description='Run cerebri'),
+    DeclareLaunchArgument('bridge', default_value='true',
+                          choices=['true', 'false'],
+                          description='Run bridges'),
+    DeclareLaunchArgument('synapse_ros', default_value='true',
+                          choices=['true', 'false'],
+                          description='Run synapse_ros'),
+    DeclareLaunchArgument('synapse_gz', default_value='true',
+                          choices=['true', 'false'],
+                          description='Run synapse_gz'),
+    DeclareLaunchArgument('joy', default_value='true',
+                          choices=['true', 'false'],
+                          description='Run joy'),
+    DeclareLaunchArgument('description', default_value='true',
+                          choices=['true', 'false'],
+                          description='Run description'),
     DeclareLaunchArgument('world', default_value='depot',
                           description='GZ World'),
-    DeclareLaunchArgument('debugger', default_value='false',
+    DeclareLaunchArgument(
+        'map_yaml',
+        default_value=[LaunchConfiguration('world'), '.yaml'],
+        description='Map yaml'),
+    DeclareLaunchArgument('cerebri_gdb', default_value='false',
                           choices=['true', 'false'],
                           description='Run cerebri with gdb debugger.'),
     DeclareLaunchArgument('uart_shell', default_value='false',
@@ -39,108 +66,86 @@ ARGUMENTS = [
                           description='Run cerebri with UART shell.'),
     DeclareLaunchArgument('spawn_model', default_value='true',
                           choices=['true', 'false'],
-                          description='Spawn El Mandadero Model'),
+                          description='Spawn ELM4 Model'),
     DeclareLaunchArgument('use_sim_time', default_value='true',
                           choices=['true', 'false'],
                           description='Use sim time'),
+    DeclareLaunchArgument('log_level', default_value='error',
+                          choices=['info', 'warn', 'error'],
+                          description='log level'),
 ]
 
 
 def generate_launch_description():
-
-
-    # Parameters
-
-    declare_x = DeclareLaunchArgument(
-        'x',
-        default_value=['0'],
-        description='x position')
-
-    declare_y = DeclareLaunchArgument(
-        'y',
-        default_value=['0'],
-        description='y position')
-
-    declare_z = DeclareLaunchArgument(
-        'z',
-        default_value=['0'],
-        description='z position')
-
-    declare_yaw = DeclareLaunchArgument(
-        'yaw',
-        default_value=['0'],
-        description='yaw position')
-
-    declare_map_yaml = DeclareLaunchArgument(
-        'map_yaml', 
-        default_value=[LaunchConfiguration('world'), '.yaml'],
-        description='Map yaml'),
-
-
-    # Launch configurations
-    x = LaunchConfiguration('x')
-    y = LaunchConfiguration('y')
-    z = LaunchConfiguration('z')
-    yaw = LaunchConfiguration('yaw')
-
     synapse_ros = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('synapse_ros'), 'launch', 'synapse_ros.launch.py'])]),
+        condition=IfCondition(LaunchConfiguration('synapse_ros')),
         launch_arguments=[('host', ['192.0.2.1']),
-                          ('port', '4242')]
+                          ('port', '4242'),
+                          ('use_sim_time', LaunchConfiguration('use_sim_time'))]
     )
 
     synapse_gz = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('synapse_gz'), 'launch', 'synapse_gz.launch.py'])]),
+        condition=IfCondition(LaunchConfiguration('synapse_gz')),
         launch_arguments=[('host', ['127.0.0.1']),
-                          ('port', '4241')],
+                          ('port', '4241'),
+                          ('use_sim_time', LaunchConfiguration('use_sim_time'))]
     )
 
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])]),
-        launch_arguments=[('gz_args', [LaunchConfiguration('world'), '.sdf', ' -v 1', ' -r'])]
+        launch_arguments=[('gz_args', [
+            LaunchConfiguration('world'), '.sdf', ' -v 0', ' -r'
+            ])]
     )
 
     cerebri = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
             [get_package_share_directory('cerebri_bringup'), 'launch', 'cerebri.launch.py'])]),
         condition=IfCondition(LaunchConfiguration('cerebri')),
-        launch_arguments=[('debugger', LaunchConfiguration('debugger')),
+        launch_arguments=[('gdb', LaunchConfiguration('cerebri_gdb')),
                           ('vehicle', 'elm4'),
                           ('uart_shell', LaunchConfiguration('uart_shell'))],
     )
 
     joy = Node(
-        namespace='cerebri/in',
         package='joy',
         executable='joy_node',
-        output='screen'
+        output='screen',
+        arguments=['--ros-args', '--log-level', LaunchConfiguration('log_level')],
+        condition=IfCondition(LaunchConfiguration('joy')),
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time')
+            }],
+        remappings=[('/joy', '/cerebri/in/joy')]
     )
 
     clock_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        #namespace='cerebri',
-        name='clock_bridge',
         output='screen',
-        arguments=[
-            '/clock' + '@rosgraph_msgs/msg/Clock' + '[gz.msgs.Clock'
-        ])
+        condition=IfCondition(LaunchConfiguration('bridge')),
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time')
+            }],
+        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
+    )
 
     lidar_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        #namespace='cerebri',
-        name='lidar_bridge',
         output='screen',
+        condition=IfCondition(LaunchConfiguration('bridge')),
         parameters=[{
             'use_sim_time': LaunchConfiguration('use_sim_time')
         }],
         arguments=[
-            ['/world/default/model/elm4/link/lidar_link/sensor/lidar/scan' +
-             '@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan']
+            '/world/default/model/elm4/link/lidar_link/sensor/lidar/scan' +
+             '@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan'
         ],
         remappings=[
             ('/world/default/model/elm4/link/lidar_link/sensor/lidar/scan',
@@ -150,9 +155,8 @@ def generate_launch_description():
     odom_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        #namespace='cerebri',
-        name='odom_bridge',
         output='screen',
+        condition=IfCondition(LaunchConfiguration('bridge')),
         parameters=[{
             'use_sim_time': LaunchConfiguration('use_sim_time')
             }],
@@ -166,10 +170,9 @@ def generate_launch_description():
     odom_base_tf_bridge = Node(
         package='ros_gz_bridge', 
         executable='parameter_bridge',
-        #namespace='cerebri',
-        name='odom_base_tf_bridge',
         output='screen',
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        condition=IfCondition(LaunchConfiguration('bridge')),
         arguments=[
            ['/model/elm4/pose' +
             '@tf2_msgs/msg/TFMessage' +
@@ -182,10 +185,9 @@ def generate_launch_description():
     pose_bridge = Node(
         package='ros_gz_bridge', 
         executable='parameter_bridge',
-        #namespace='cerebri',
-        name='pose_bridge',
         output='screen',
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        condition=IfCondition(LaunchConfiguration('bridge')),
         arguments=[
            ['/model/elm4/pose' +
             '@tf2_msgs/msg/TFMessage' +
@@ -201,19 +203,20 @@ def generate_launch_description():
     robot_description = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([PathJoinSubstitution(
         [get_package_share_directory('elm4_description'), 'launch', 'robot_description.launch.py'])]),
+        condition=IfCondition(LaunchConfiguration('description')),
         launch_arguments=[('use_sim_time', LaunchConfiguration('use_sim_time'))])
 
     spawn_robot = Node(
         package='ros_gz_sim',
         executable='create',
-        name='spawn_robot',
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
         arguments=[
             '-world', 'default',
             '-name', 'elm4',
-            '-x', x,
-            '-y', y,
-            '-z', z,
-            '-Y', yaw,
+            '-x', LaunchConfiguration('x'),
+            '-y', LaunchConfiguration('y'),
+            '-z', LaunchConfiguration('z'),
+            '-Y', LaunchConfiguration('yaw'),
             '-file', PathJoinSubstitution([get_package_share_directory(
                 'elm4_gz_resource'),
                 'models/elm4/model.sdf'])
@@ -259,39 +262,50 @@ def generate_launch_description():
                 'elm4_nav2'), 'maps', LaunchConfiguration('map_yaml')]))])
 
     tf_to_odom = Node(
+        condition=IfCondition(LaunchConfiguration('corti')),
         package='corti',
         executable='tf_to_odom',
         output='screen',
         parameters=[{
             'base_frame': 'map',
             'target_frame': 'base_link',
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
             }],
         remappings=[
             ('/odom', '/cerebri/in/odometry')
             ])
 
+    odom_to_tf = Node(
+        condition=IfCondition(LaunchConfiguration('corti')),
+        package='corti',
+        executable='odom_to_tf',
+        output='screen',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            }],
+        remappings=[
+            ('/odom', '/cerebri/out/odometry')
+            ])
+
     # Define LaunchDescription variable
     return LaunchDescription(ARGUMENTS + [
         robot_description,
-        declare_x,
-        declare_y,
-        declare_z,
-        declare_yaw,
         synapse_ros,
         synapse_gz,
         gz_sim,
         cerebri,
         joy,
-        odom_bridge,
+        #odom_bridge,
         clock_bridge,
         lidar_bridge,
-        odom_base_tf_bridge,
-        pose_bridge,
+        #odom_base_tf_bridge,
+        #pose_bridge,
         rviz2,
         spawn_robot,
         nav2,
         corti,
         slam,
         localization,
-        tf_to_odom
+        #tf_to_odom,
+        odom_to_tf,
     ])
