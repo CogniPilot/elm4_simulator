@@ -775,8 +775,8 @@
     <plugin
       filename="gz-sim-joint-state-publisher-system"
       name="gz::sim::systems::JointStatePublisher">
-      <joint_name>RearRightHubMotorWheelJoint</joint_name>
-      <joint_name>RearLeftHubMotorWheelJoint</joint_name>
+      <joint_name>BackRightHubMotorWheelJoint</joint_name>
+      <joint_name>BackLeftHubMotorWheelJoint</joint_name>
       <joint_name>FrontRightHubMotorWheelJoint</joint_name>
       <joint_name>FrontLeftHubMotorWheelJoint</joint_name>
     </plugin>
