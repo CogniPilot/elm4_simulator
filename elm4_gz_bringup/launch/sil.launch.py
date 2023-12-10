@@ -61,9 +61,6 @@ ARGUMENTS = [
     DeclareLaunchArgument('cerebri_gdb', default_value='false',
                           choices=['true', 'false'],
                           description='Run cerebri with gdb debugger.'),
-    DeclareLaunchArgument('uart_shell', default_value='false',
-                          choices=['true', 'false'],
-                          description='Run cerebri with UART shell.'),
     DeclareLaunchArgument('spawn_model', default_value='true',
                           choices=['true', 'false'],
                           description='Spawn ELM4 Model'),
@@ -109,8 +106,7 @@ def generate_launch_description():
             [get_package_share_directory('cerebri_bringup'), 'launch', 'cerebri.launch.py'])]),
         condition=IfCondition(LaunchConfiguration('cerebri')),
         launch_arguments=[('gdb', LaunchConfiguration('cerebri_gdb')),
-                          ('vehicle', 'elm4'),
-                          ('uart_shell', LaunchConfiguration('uart_shell'))],
+                          ('vehicle', 'elm4')],
     )
 
     joy = Node(
